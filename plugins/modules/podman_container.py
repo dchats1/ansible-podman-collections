@@ -342,6 +342,11 @@ options:
         upper case versions of those.
         Defaults to true
     type: bool
+  ignore_unmanaged:
+    description:
+      - Don't compare parameters that aren't set by the user
+    type: bool
+    default: False
   image_volume:
     description:
       - Tells podman how to handle the builtin image volumes.
@@ -1327,7 +1332,7 @@ class PodmanContainerDiff:
         return params_with_defaults
 
     def _diff_update_and_compare(self, param_name, before, after):
-        if before != after:
+        if before != after and not (self.params['ignore_unmanaged'] and self.module.params[param_name] is None):
             self.diff['before'].update({param_name: before})
             self.diff['after'].update({param_name: after})
             return True
